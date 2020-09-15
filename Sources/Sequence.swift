@@ -1,11 +1,3 @@
-//
-//  Sequence.swift
-//  Smile
-//
-//  Created by Khoa Pham on 24/02/2017.
-//  Copyright © 2017 Fantageek. All rights reserved.
-//
-
 import Foundation
 
 public struct Sequence {

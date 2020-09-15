@@ -159,7 +159,7 @@ node parser.js
 it, simply add the following line to your Podfile:
 
 ```ruby
-pod 'Smile'
+pod 'Smile', :git => 'https://github.com/mobile-davinder/Smile.git'
 ```
 
 **Smile** is also available through [Carthage](https://github.com/Carthage/Carthage).

@@ -3,6 +3,17 @@
 var https = require('https');
 var fs = require('fs');
 
+function toUnicode(str) {
+	return str.split('').map(function (value, index, array) {
+		var temp = value.charCodeAt(0).toString(16).toUpperCase();
+		if (temp.length > 2) {
+			return '\\u' + temp;
+		}
+		return value;
+	}).join('');
+}
+
+
 function download(url, callback) {
 	https.get(url, function(res) {
 		var data = "";
@@ -20,31 +31,53 @@ function download(url, callback) {
 }
 var categories = {};
 
-download('https://cdn.rawgit.com/github/gemoji/master/db/emoji.json', function(data) {
+download('https://raw.githubusercontent.com/serebrov/emoji-mart-vue/master/data/apple.json', function(data) {
+  console.log('data', data)
   parse(data);
   parse_categories();
 });
 
 function parse(data) {
   const json = JSON.parse(data);
-
+  
   var string = 'public let emojiList: [String: String] = [\n'
 
-  json.forEach(function(item){    
-    if (typeof item.aliases === "undefined"
-    || typeof item.emoji === "undefined"
-    || item.emoji == "undefined") {
-      return;
-    }
-    
-    const itemString = '  "' + item.aliases[0] + '": "' + item.emoji + '",\n'
+  Object.keys(json.emojis).map(key => {
+    var result = json.emojis[key].b.toString().split("-").map(function (x) { 
+      return parseInt(x, 16); 
+    })
+    console.log('result', result)
+    const itemString = '  "' + key + '": "' + String.fromCodePoint(...result) + '",\n'
+    console.log('string', itemString)
     string = string + itemString
-    
-    if (!categories[item.category]) {
-      categories[item.category] = []
-    } 
-    categories[item.category].push(item.emoji);
   })
+
+  json.categories.map(category => {
+    const { name, emojis } = category
+    categories[name] = []
+    emojis.map(emoji => {
+      var result = json.emojis[emoji].b.toString().split("-").map(function (x) { 
+        return parseInt(x, 16); 
+      })
+  
+      categories[name].push(String.fromCodePoint(...result))
+    })
+  })
+  // json.forEach(function(item){    
+  //   if (typeof item.aliases === "undefined"
+  //   || typeof item.emoji === "undefined"
+  //   || item.emoji == "undefined") {
+  //     return;
+  //   }
+    
+  //   const itemString = '  "' + item.aliases[0] + '": "' + item.emoji + '",\n'
+  //   string = string + itemString
+    
+  //   if (!categories[item.category]) {
+  //     categories[item.category] = []
+  //   } 
+  //   categories[item.category].push(item.emoji);
+  // })
   
   string = string + ']'
 
